@@ -1,0 +1,12 @@
+package com.productcatalog.model;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class Product {
+	private String productName;
+	private Integer productId;
+	private String brand;
+	private String category;
+	private double price;
+}

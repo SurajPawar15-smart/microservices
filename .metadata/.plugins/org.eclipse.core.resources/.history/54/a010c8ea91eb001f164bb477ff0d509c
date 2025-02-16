@@ -1,0 +1,9 @@
+package com.productcatalog.model;
+
+public class Product {
+private String productName;
+private Integer productId;
+private String brand;
+private String category;
+private double price;
+}

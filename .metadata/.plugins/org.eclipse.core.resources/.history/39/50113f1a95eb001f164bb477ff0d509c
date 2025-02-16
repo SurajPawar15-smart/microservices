@@ -1,0 +1,7 @@
+package com.productcatalog.controller;
+
+@RestController
+@RequestMapping("/catalog-service/v1")
+public class ProductCatalogController {
+
+}

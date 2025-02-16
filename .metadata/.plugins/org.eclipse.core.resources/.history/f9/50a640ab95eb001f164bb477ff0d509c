@@ -1,0 +1,20 @@
+package com.productcatalog.controller;
+
+import java.util.List;
+import java.util.Optional;
+
+import com.productcatalog.model.Product;
+
+@RestController
+@RequestMapping("/catalog-service/v1")
+public class ProductCatalogController {
+	@Autowired
+	private IProductCatelogService catalogService;
+	
+	@GetMapping("/productcatalog")
+	List<Product> getAll(){
+		return catelogService.getAll();
+	}
+	List<Product> getByCategory(String category){}
+	Optional<Product> getById(int productId){}
+}

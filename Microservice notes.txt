@@ -1,0 +1,267 @@
+===========================
+Day-01 : Software Requirements
+===========================
+JDK 21 
+https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html
+TomcatServer 10.1.x - 
+https://tomcat.apache.org (zip file)
+Postman - 
+https://www.postman.com/downloads/
+Spring Tool Suite4.x - 
+https://spring.io/tools/
+
+file=>new =>springboot starter => eureka-service-registry
+com.productapp
+
+
+package com.productapp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServiceRegistryApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EurekaServiceRegistryApplication.class, args);
+	}
+
+}
+
+Create a file => src/main/resources =>right click => file =>new file => 
+application.yml
+
+application.yml 
+server:
+  port: 8761
+
+spring:
+  application:
+    name: EUREKA-REGISTRY
+
+#every service should registry to this url
+eureka:
+  client:
+    service-url:
+      default-zone: http://${eureka.instance.hostname}:${server.port}
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    hostname: localhost
+
+https://spring.io/guides/gs/service-registration-and-discovery
+
+        private String productName;
+	private Integer productId;
+	private String brand;
+	private String category;
+	private double price;
+
+
+List<Product> getAll();
+	List<Product> getByCategory(String category);
+	Product getById(int productId);
+
+
+
+@Service
+public class ProductCatalogServiceImpl implements IProductCatalogService{
+
+	private ProductDetails productDetails;
+	
+	public ProductCatalogServiceImpl(ProductDetails productDetails) {
+		super();
+		this.productDetails = productDetails;
+	}
+
+	@Override
+	public List<Product> getAll() {
+		return productDetails.showProducts();
+	}
+
+	@Override
+	public List<Product> getByCategory(String category) {
+		List<Product> products = productDetails.showProducts();
+		// convert to stream, filter, convert to list
+		return products.stream()
+				.filter(product->product.getCategory().equals(category))
+				.toList();
+	}
+
+	@Override
+	public Optional<Product> getById(int productId) {
+		return productDetails.showProducts()
+				.stream()
+				.filter(product->product.getProductId()==productId)
+				.findFirst();
+	}
+
+}
+
+
+@RestController
+@RequestMapping("/catalog-service/v1")
+public class ProductCatalogController {
+	
+	@Autowired
+	private IProductCatalogService catalogService;
+	
+//	http://localhost:8081/catalog-service/v1/productcatalog
+	@GetMapping("/productcatalog")
+	List<Product> getAll(){
+		return catalogService.getAll();
+	}
+	
+//	http://localhost:8081/catalog-service/v1/productcatalog/category/Sports
+	@GetMapping("/productcatalog/category/{category}")
+	List<Product> getByCategory(@PathVariable String category){
+		return catalogService.getByCategory(category);
+	}
+//	http://localhost:8081/catalog-service/v1/productcatalog/productId/1
+	@GetMapping("/productcatalog/productId/{productId}")
+	Product getById(@PathVariable int productId){
+		Optional<Product> productopt = catalogService.getById(productId);
+		return productopt.orElse(new Product());
+		
+	}
+
+
+
+}
+http://localhost:8081/catalog-service/v1/productcatalog/category/Electronics
+
+http://localhost:8081/catalog-service/v1/productcatalog/category/Sports
+
+http://localhost:8081/catalog-service/v1/productcatalog
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

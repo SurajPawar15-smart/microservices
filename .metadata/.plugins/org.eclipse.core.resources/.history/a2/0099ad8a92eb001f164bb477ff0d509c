@@ -1,0 +1,7 @@
+package com.productcatalog.service;
+
+public interface IProductCatalogService {
+List<Product> getAll();
+List<Product> getByCategory(String category);
+List<Product> getById(int productId);
+}
