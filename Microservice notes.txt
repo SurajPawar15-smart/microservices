@@ -59,10 +59,18 @@ https://spring.io/guides/gs/service-registration-and-discovery
 	private String category;
 	private double price;
 
+package com.productcatalog.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.productcatalog.model.Product;
+
+public interface IProductCatalogService {
 List<Product> getAll();
-	List<Product> getByCategory(String category);
-	Product getById(int productId);
+List<Product> getByCategory(String category);
+Optional<Product> getById(int productId);
+}
 
 
 
@@ -137,33 +145,197 @@ http://localhost:8081/catalog-service/v1/productcatalog/category/Sports
 http://localhost:8081/catalog-service/v1/productcatalog
 
 
+https://www.youtube.com/watch?v=oPV2sjMG53U&list=PLZPZq0r_RZOMskz6MdsMOgxzheIyjo-BZ
+https://www.youtube.com/watch?v=HMXl9RyoLUM&list=PL0zysOflRCekwpUvyfadb7niCesi8d97r
+https://www.youtube.com/watch?v=yH1zCq-iaeU&list=PLdOKnrf8EcP17p05q13WXbHO5Z_JfXNpw
+https://www.youtube.com/watch?v=KlWOr2RwqM4&list=PL0b6OzIxLPbzf12lu5etX_vjN-eUxgxnr&index=3
+
+======================================================
+Day-02: Microservice 
+======================================================
+package com.productinfo.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+
+public class Product {
+	private String productName;
+	private Integer productId;
+	private String brand;
+	private String category;
+	private double price;
+}
+
+List<Product> getAllProductInfo();
+	List<Product> getProductInfoByCategory(String category);
+	Product getProductInfoById(int productId);
 
 
 
 
+@Bean
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+		
+	}
+
+
+@Service
+public class ProductInfoServiceImpl implements IProductInfoService {
+
+	// from here call the catalog service
+	// call the microservice synchronously using RestTemplate
+	@Autowired
+	RestTemplate restTemplate;
+	// pass the application
+	String BASEURL= "http://PRODUCT-CATALOG/catalog-service/v1/productcatalog";
+	
+	@Override
+	public List<Product> getAllProductInfo() {
+		List<Product> products =  restTemplate.getForObject(BASEURL, List.class);
+		return products;
+	}
+
+	@Override
+	public List<Product> getProductInfoByCategory(String category) {
+//		http://localhost:8081/catalog-service/v1/productcatalog/category/Sports
+		String url = BASEURL.concat("/category/").concat(category);
+		return  restTemplate.getForObject(url, List.class);
+	}
+
+	@Override
+	public Product getProductInfoById(int prodId) {
+//		http://localhost:8081/catalog-service/v1/productcatalog/productId/1";
+		String url = BASEURL.concat("/productId/")+prodId;
+		return restTemplate.getForObject(url, Product.class);
+	}
+
+}
+
+
+	@Autowired
+	private IProductInfoService infoService;
+	
+//	http://localhost:8082/info-service/v1/productinfo
+	@GetMapping("/productinfo")
+	List<Product> viewInfo(){
+		return infoService.getAllProductInfo();
+		
+	}
+//	http://localhost:8082/info-service/v1/productinfo/category/Sports
+	@GetMapping("/productinfo/category/{category}")
+	List<Product> viewInfoByCategory(@PathVariable String category){
+		return infoService.getProductInfoByCategory(category);
+		
+	}
+//	http://localhost:8082/info-service/v1/productinfo/productId/1
+	@GetMapping("/productinfo/productId/{productId}")
+	Product viewInfoById(@PathVariable int productId) {
+		return infoService.getProductInfoById(productId);
+		
+	}
+
+
+}
+
+=========================================================
+output to check :
+=========================================================
+http://localhost:8081/catalog-service/v1/productcatalog
+http://localhost:8082/info-service/v1/productinfo
+http://localhost:8082/info-service/v1/productinfo/category/Sports
+http://localhost:8082/info-service/v1/productinfo/productId/1
 
 
 
 
+#/WEB-INF/views/home.jsp
+
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+
+@Controller
+public class ProductController {
+@GetMapping("/")
+public String getAllProducts(){
+// call the service layer
+
+return "home";
+}
+
+}
+
+serviceimple code =>
+@Service
+public class ProductServiceImpl implements IProductService{
+	
+	@Autowired
+	RestTemplate restTemplate;
+	private String BASEURL  = "http://localhost:8082/info-service/v1/productinfo";
+	
+	@Override
+	public List<Product> getAll() {
+		return restTemplate.getForObject(BASEURL, List.class);
+	}
+
+	@Override
+	public List<Product> getByCategory(String category) {
+		String url = BASEURL.concat("/category/").concat(category);
+		return  restTemplate.getForObject(url, List.class);
+	}
+
+	@Override
+	public Product getById(int prodId) {
+		String url = BASEURL.concat("/productId/")+prodId;
+		return restTemplate.getForObject(url, Product.class);
+	}
 
 
 
 
+@Controller
+public class ProductController {
+	@Autowired
+	private IProductService productService;
+	
+	@GetMapping("/")
+	public String getAllProducts(Model model){
+		// call the service layer
+		List<Product> products = productService.getAll();
+		model.addAttribute("products", products);
+		return "home";
+	}
 
 
+@GetMapping("/")
+public String getAllProducts(ModelMap model) {
+    List<Product> products = productService.getAll();
+    model.addAttribute("products", products);
+    return "home";
+}
 
 
+@GetMapping("/")
+public ModelAndView getAllProducts() {
+    List<Product> products = productService.getAll();
+    ModelAndView mav = new ModelAndView("home");
+    mav.addObject("products", products);
+    return mav;
+}
 
 
+http://localhost:8080/productapp-webapp-client/
 
 
-
-
-
-
-
-
-
+=======================================================================
 
 
 
